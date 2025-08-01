@@ -100,6 +100,10 @@
  * \ref ofc_framework_get_description | Get the Description of the System
  * \ref ofc_framework_free_description | Free Description
  * \ref ofc_framework_set_realm | Set default Kerberos Realm
+#if defined(OFC_KERBEROS) && defined(__linux__)
+ * \ref ofc_framework_set_reverse_dns | Set reverse DNS lookups
+ * \ref ofc_framework_get_reverse_dns | Return reverse DNS setting
+#endif
  * \ref ofc_framework_set_uuid | Set UUID of system
  * \ref ofc_framework_get_uuid | Gets the UUID of the system
  * \ref ofc_framework_free_uuid | Free the uuid
@@ -427,6 +431,36 @@ OFC_VOID ofc_framework_set_realm(const OFC_CHAR *realm);
  * Default Realm of your target servers
  */
 OFC_CCHAR *ofc_framework_get_realm(OFC_VOID);
+
+#if defined(OFC_KERBEROS) && defined(__linux__)
+/**
+ * Set the Reverse DNS Setting for Kerberos Authentication
+ *
+ * When specifying the remote server in a Kerberos Realm for authentication
+ * it is typically required that the server be specified as a FQDN
+ * (i.e. host.example.com).  Under certain conditions, it is possible,
+ * given an IP address, for the FQDN of the host to be looked up.  This
+ * is generally not recommended because it provides attackers with another
+ * vector (reverse dns lookup).  If you wish to allow reverse DNS lookups,
+ * call this routine with the value of OFC_TRUE.
+ *
+ * \param reverse_dns
+ *
+ * Setting for reverse DNS lookups (OFC_TRUE or OFC_FALSE)
+ */
+OFC_VOID ofc_framework_set_reverse_dns(OFC_BOOL reverse_dns);
+
+/**
+ * Return the Reverse DNS Setting
+ *
+ * This is intended to be called internally.
+ *
+ * \returns 
+ * Reverse DNS Setting
+ */
+OFC_BOOL ofc_framework_get_reverse_dns(OFC_VOID);
+#endif
+  
 /**
  * Set the UUID of the host
  *

@@ -28,6 +28,7 @@
 #include "ofc/heap.h"
 
 static OFC_LPTSTR config_filename = OFC_NULL;
+static OFC_BOOL config_reverse_dns = OFC_FALSE;
 
 /**
  * \defgroup init Initialization
@@ -46,6 +47,7 @@ ofc_framework_init(OFC_VOID)
    */
   framework_scheduler = OFC_HANDLE_NULL;
   ofc_core_load();
+  config_reverse_dns = OFC_FALSE;
 
 }
 
@@ -273,6 +275,18 @@ OFC_CCHAR *ofc_framework_get_realm(OFC_VOID)
 {
   return (ofc_persist_realm());
 }
+
+#if defined(OFC_KERBEROS) && defined(__linux__)
+OFC_VOID ofc_framework_set_reverse_dns(OFC_BOOL reverse_dns)
+{
+  config_reverse_dns = reverse_dns;
+}
+
+OFC_BOOL ofc_framework_get_reverse_dns(OFC_VOID)
+{
+  return (config_reverse_dns);
+}
+#endif
 
 OFC_VOID ofc_framework_set_uuid(const OFC_CHAR *cuuid) {
     OFC_UUID uuid;
