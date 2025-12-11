@@ -460,7 +460,8 @@ ofc_path_createW(OFC_LPCTSTR lpFileName)
 
           if (ofc_tstrcmp(dir, TSTR("..")) == 0)
             {
-              if (path->num_dirs > 0)
+              if ((path->remote && path->num_dirs > 2) ||
+                  (!path->remote && path->num_dirs > 0))
                 {
                   path->num_dirs--;
                   ofc_free(path->dir[path->num_dirs]);
