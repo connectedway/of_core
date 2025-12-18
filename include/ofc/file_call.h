@@ -185,7 +185,7 @@ typedef struct {
     OFC_LONG lDistanceToMove;
     OFC_LONG lDistanceToMoveHigh;
     OFC_DWORD dwMoveMethod;
-    OFC_DWORD dwPosition;
+    OFC_UINT64 dwPosition;
 } FILE_CALL_SET_FILE_POINTER;
 
 typedef struct {

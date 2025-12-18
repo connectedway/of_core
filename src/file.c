@@ -1109,8 +1109,14 @@ OfcGetVolumeInformationW(OFC_LPCTSTR lpRootPathName,
     OFC_LPTSTR lpMappedPathName;
     OFC_FST_TYPE type;
     OFC_BOOL ret;
+    OFC_PATH *path;
 
-    ofc_path_get_rootW(lpRootPathName, &lpMappedPathName, &type);
+#if 0
+    ofc_path_get_rootW(lpRootPathName, &lpMappedPathName, &type) ;
+#else
+    path = ofc_map_path(lpRootPathName, &lpMappedPathName);
+    type = MapType(path);
+#endif
 
     ret = OfcFSGetVolumeInformation(type,
                                     lpMappedPathName,
@@ -1124,6 +1130,9 @@ OfcGetVolumeInformationW(OFC_LPCTSTR lpRootPathName,
 
     ofc_free(lpMappedPathName);
 
+#if 1
+    ofc_path_delete(path);
+#endif
     return (ret);
 }
 
