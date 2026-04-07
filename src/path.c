@@ -452,7 +452,7 @@ ofc_path_createW(OFC_LPCTSTR lpFileName)
 
   while (*cursor != TCHAR_EOS)
     {
-      dir = ParseUnescaped(cursor, &cursor, TSTR("\\/:"));
+      dir = ParseEscaped(cursor, &cursor, TSTR("\\/:"));
 
       if (dir != OFC_NULL)
         {
@@ -711,7 +711,10 @@ ofc_path_printW(OFC_PATH *_path, OFC_LPTSTR *filename, OFC_SIZET *rem) {
     for (i = 0; i < path->num_dirs; i++) {
         if (path->dir[i] != OFC_NULL &&
             ofc_tstrcmp(path->dir[i], TSTR("")) != 0) {
-            len += ofc_path_out_str(path->dir[i], filename, rem);
+            if (i == 0)
+              len += ofc_path_out_escaped(path->dir[i], filename, rem);
+            else
+              len += ofc_path_out_str(path->dir[i], filename, rem);
 
             if (path->remote && (i == 0) && (path->port != 0)) {
                 OFC_SIZET count;
