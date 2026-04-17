@@ -1200,7 +1200,7 @@ OFC_CORE_LIB OFC_SIZET ofc_path_make_urlW(OFC_LPTSTR *filename,
       }
 
     if (server != OFC_NULL) {
-        len += ofc_path_out_str(server, filename, rem);
+        len += ofc_path_out_escaped(server, filename, rem);
         len += ofc_path_out_char(delimeter, filename, rem);
     }
 
