@@ -40,6 +40,7 @@ set(SRCS
         src/thread.c
         src/time.c
         src/timer.c
+	src/utf.c
         src/waitq.c
         src/waitset.c
         )
