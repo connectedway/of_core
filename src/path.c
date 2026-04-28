@@ -452,7 +452,10 @@ ofc_path_createW(OFC_LPCTSTR lpFileName)
 
   while (*cursor != TCHAR_EOS)
     {
-      dir = ParseEscaped(cursor, &cursor, TSTR("\\/:"));
+      if (path->remote && path->num_dirs == 1)
+	dir = ParseEscaped(cursor, &cursor, TSTR("\\/:"));
+      else
+	dir = ParseEscaped(cursor, &cursor, TSTR("\\/"));
 
       if (dir != OFC_NULL)
         {
@@ -1932,22 +1935,22 @@ OFC_VOID ofc_path_debug(OFC_PATH *_path) {
     _OFC_PATH *path = (_OFC_PATH *) _path;
     OFC_UINT i;
 
-    ofc_printf("Path:\n");
-    ofc_printf("  Type: %d\n", path->type);
-    ofc_printf("  Device: %S\n",
+    ofc_log(OFC_LOG_INFO, "Path:\n");
+    ofc_log(OFC_LOG_INFO, "  Type: %d\n", path->type);
+    ofc_log(OFC_LOG_INFO, "  Device: %S\n",
                path->device == OFC_NULL ? TSTR("NULL") : path->device);
-    ofc_printf("  Username: %S\n",
+    ofc_log(OFC_LOG_INFO, "  Username: %S\n",
                path->username == OFC_NULL ? TSTR("NULL") : path->username);
-    ofc_printf("  Password: %S\n",
+    ofc_log(OFC_LOG_INFO, "  Password: %S\n",
                path->password == OFC_NULL ? TSTR("NULL") : path->password);
-    ofc_printf("  Domain: %S\n",
+    ofc_log(OFC_LOG_INFO, "  Domain: %S\n",
                path->domain == OFC_NULL ? TSTR("NULL") : path->domain);
-    ofc_printf("  Num Dirs: %d\n", path->num_dirs);
+    ofc_log(OFC_LOG_INFO, "  Num Dirs: %d\n", path->num_dirs);
     for (i = 0; i < path->num_dirs; i++)
-        ofc_printf("    %d: %S\n", i, path->dir[i]);
+        ofc_log(OFC_LOG_INFO, "    %d: %S\n", i, path->dir[i]);
 
-    ofc_printf("  Absolute: %s\n", path->absolute ? "yes" : "no");
-    ofc_printf("  Remote: %s\n", path->remote ? "yes" : "no");
+    ofc_log(OFC_LOG_INFO, "  Absolute: %s\n", path->absolute ? "yes" : "no");
+    ofc_log(OFC_LOG_INFO, "  Remote: %s\n", path->remote ? "yes" : "no");
 }
 
 static OFC_HANDLE hWorkgroups;
