@@ -705,14 +705,14 @@ ofc_path_printW(OFC_PATH *_path, OFC_LPTSTR *filename, OFC_SIZET *rem) {
 		len += ofc_path_out_char(TCHAR_COLON, filename, rem);
 		len += ofc_path_out_escaped(path->domain, filename, rem);
 	      }
-            len += ofc_path_out_char(TCHAR_AMP, filename, rem);
 	  }
+	len += ofc_path_out_char(TCHAR_AMP, filename, rem);
       }
 
     for (i = 0; i < path->num_dirs; i++) {
         if (path->dir[i] != OFC_NULL &&
             ofc_tstrcmp(path->dir[i], TSTR("")) != 0) {
-            if (i == 0)
+            if (i == 0 && path->remote)
               len += ofc_path_out_escaped(path->dir[i], filename, rem);
             else
               len += ofc_path_out_str(path->dir[i], filename, rem);
@@ -1196,8 +1196,8 @@ OFC_CORE_LIB OFC_SIZET ofc_path_make_urlW(OFC_LPTSTR *filename,
 		  len += ofc_path_out_escaped(domain, filename, rem);
 	      }
 	  }
-	len += ofc_path_out_char(TCHAR_AMP, filename, rem);
       }
+    len += ofc_path_out_char(TCHAR_AMP, filename, rem);
 
     if (server != OFC_NULL) {
         len += ofc_path_out_escaped(server, filename, rem);
