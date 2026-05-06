@@ -420,7 +420,7 @@ ofc_path_createW(OFC_LPCTSTR lpFileName)
        * There's an authority (remote access)
        * Find out if there's a credential.  There will be an unescapedd "@"
        */
-      credentials = ParseEscaped(cursor, &p, TSTR("@"));
+      credentials = ParseEscaped(cursor, &p, TSTR("/\\@"));
       ofc_free(credentials);
 
       if (*p == TCHAR_AMP)
@@ -714,7 +714,7 @@ ofc_path_printW(OFC_PATH *_path, OFC_LPTSTR *filename, OFC_SIZET *rem) {
     for (i = 0; i < path->num_dirs; i++) {
         if (path->dir[i] != OFC_NULL &&
             ofc_tstrcmp(path->dir[i], TSTR("")) != 0) {
-            if (i == 0)
+            if (i == 0 && path->remote )
               len += ofc_path_out_escaped(path->dir[i], filename, rem);
             else
               len += ofc_path_out_str(path->dir[i], filename, rem);
