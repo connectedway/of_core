@@ -452,7 +452,7 @@ ofc_path_createW(OFC_LPCTSTR lpFileName)
 
   while (*cursor != TCHAR_EOS)
     {
-      if (path->remote && path->num_dirs == 1)
+      if (path->remote && path->num_dirs == 0)
 	dir = ParseEscaped(cursor, &cursor, TSTR("\\/:"));
       else
 	dir = ParseEscaped(cursor, &cursor, TSTR("\\/"));
