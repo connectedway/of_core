@@ -32,6 +32,7 @@ typedef struct {
 				   First is the share */
     OFC_BOOL absolute;        /**< If the path is absolute */
     OFC_BOOL remote;        /**< If the path is remote */
+    OFC_UINT smbsession;    /**< SMB session pool index (0 for plain "smb") */
 } _OFC_PATH;
 
 typedef struct {
@@ -96,6 +97,7 @@ ofc_path_update(OFC_PATH *_path, OFC_PATH *_map) {
     path->remote = map->remote;
     if (path->remote)
         path->port = map->port;
+    path->smbsession = map->smbsession;
 
     path->dir = ofc_realloc(path->dir,
                             (map->num_dirs + path->num_dirs) *
@@ -315,6 +317,7 @@ ofc_path_init_path(OFC_VOID) {
     path->dir = OFC_NULL;
     path->absolute = OFC_FALSE;
     path->remote = OFC_FALSE;
+    path->smbsession = 0;
 
     return (path);
 }
@@ -382,6 +385,28 @@ ofc_path_createW(OFC_LPCTSTR lpFileName)
           (ofc_tstrcmp(path->device, TSTR("smb")) == 0) ||
           (ofc_tstrcmp(path->device, TSTR("proxy")) == 0))
         path->remote = OFC_TRUE;
+      else if (ofc_tstrncmp(path->device, TSTR("smb"), 3) == 0)
+        {
+          /* "smbN" form - parse trailing digits as session index */
+          OFC_LPCTSTR suffix = path->device + 3;
+          OFC_UINT session = 0;
+          OFC_BOOL valid = OFC_TRUE;
+          while (*suffix != TCHAR_EOS && valid)
+            {
+              if (*suffix < L'0' || *suffix > L'9')
+                valid = OFC_FALSE;
+              else
+                {
+                  session = session * 10 + (OFC_UINT)(*suffix - L'0');
+                  suffix++;
+                }
+            }
+          if (valid)
+            {
+              path->smbsession = session;
+              path->remote = OFC_TRUE;
+            }
+        }
       /*
        * We expect a device, colon and two separators for a uri
        * We expect a device, colon and one separator for an absolute DOS path
@@ -1486,6 +1511,11 @@ OFC_CORE_LIB OFC_BOOL ofc_path_hidden(OFC_PATH *_path)
     }
 
   return (ret);
+}
+
+OFC_CORE_LIB OFC_UINT ofc_path_smbsession(OFC_PATH *_path) {
+    _OFC_PATH *path = (_OFC_PATH *) _path;
+    return (path->smbsession);
 }
 
 OFC_CORE_LIB OFC_INT ofc_path_port(OFC_PATH *_path) {

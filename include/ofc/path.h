@@ -499,6 +499,11 @@ OFC_CORE_LIB OFC_INT ofc_path_port(OFC_PATH *path);
   /**
    * \private
    */
+OFC_CORE_LIB OFC_UINT ofc_path_smbsession(OFC_PATH *path);
+
+  /**
+   * \private
+   */
 OFC_CORE_LIB OFC_VOID ofc_path_set_port(OFC_PATH *_path, OFC_INT port);
 
   /**
