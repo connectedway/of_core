@@ -35,7 +35,6 @@
  * Open Files (ConnectSMB) can implicitly initialize, configure and startup
  * the stack, or the steps can be executed explicitly.
  *
- * The behavior is governed by two config variables.
  * The config file used in the build, \verbatim  <platform>-behavior.cfg
  * \endverbatim , contains two variables:
  *
