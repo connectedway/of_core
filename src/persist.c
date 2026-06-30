@@ -1849,21 +1849,6 @@ ofc_persist_set_realm(OFC_CCHAR *realm) {
 }
 
 OFC_CORE_LIB OFC_VOID
-ofc_persist_set_realm(OFC_CCHAR *realm) {
-    OFC_CONFIG *ofc_persist;
-
-    ofc_persist = ofc_get_config();
-    if (ofc_persist != OFC_NULL) {
-      if (ofc_persist->default_realm != OFC_NULL)
-        {
-          ofc_free(ofc_persist->default_realm);
-          ofc_persist->default_realm = OFC_NULL;
-        }
-      ofc_persist->default_realm = ofc_strdup(realm);
-    }
-}
-
-OFC_CORE_LIB OFC_VOID
 ofc_persist_register_update(OFC_HANDLE hEvent) {
     ofc_enqueue(event_queue, (OFC_VOID *) hEvent);
     /*
