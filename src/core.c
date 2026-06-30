@@ -7,6 +7,7 @@
 
 #include "ofc/core.h"
 #include "ofc/config.h"
+#include "ofc/console.h"
 #include "ofc/types.h"
 #include "ofc/handle.h"
 #include "ofc/libc.h"
@@ -43,6 +44,7 @@ ofc_core_load(OFC_VOID)
   if (!core_loaded)
     {
       ofc_heap_load();
+      ofc_console_init();
       ofc_handle16_init();
       ofc_thread_init();
       ofc_trace_init();
@@ -82,6 +84,7 @@ ofc_core_unload(OFC_VOID)
 
       ofc_handle16_free();
 
+      ofc_console_destroy();
       ofc_heap_unload();
       core_loaded = OFC_FALSE;
     }

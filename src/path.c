@@ -1742,6 +1742,23 @@ OFC_CORE_LIB OFC_VOID ofc_path_set_domain(OFC_PATH *_path,
     }
 }
 
+OFC_CORE_LIB OFC_BOOL
+ofc_path_domain_cmp(OFC_PATH *_path, OFC_LPCTSTR domain) {
+    _OFC_PATH *path = (_OFC_PATH *) _path;
+    OFC_BOOL ret;
+
+    ret = OFC_FALSE;
+    if (path->remote) {
+        if (path->domain == OFC_NULL && domain == OFC_NULL)
+            ret = OFC_TRUE;
+        else if (path->domain != OFC_NULL && domain != OFC_NULL) {
+            if (ofc_tstrcmp(path->domain, domain) == 0)
+                ret = OFC_TRUE;
+        }
+    }
+    return (ret);
+}
+
 OFC_CORE_LIB OFC_LPCTSTR ofc_path_device(OFC_PATH *_path) {
     _OFC_PATH *path = (_OFC_PATH *) _path;
     return (path->device);

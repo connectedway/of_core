@@ -242,7 +242,7 @@ ofc_persist_make_dom(OFC_VOID) {
             error_state = OFC_TRUE;
         }
 
-  if (!error_state) {
+	if (!error_state) {
             cstr =
                     ofc_tstr2cstr(ofc_persist->workstation_desc);
             node =

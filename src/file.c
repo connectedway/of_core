@@ -1021,7 +1021,7 @@ struct _err2str err2str[] =
                 {OFC_ERROR_INVALID_LOGON_HOURS,     "Invalid Logon Hours"},
                 {OFC_ERROR_INVALID_WORKSTATION,     "Invalid Workstation"},
                 {OFC_ERROR_PASSWORD_EXPIRED,        "Password Expired"},
-		{OFC_ERROR_ACCOUNT_DISABLED,        "Account Disabled"},
+                {OFC_ERROR_ACCOUNT_DISABLED,        "Account Disabled"},
                 {OFC_ERROR_LOGON_NOT_GRANTED,       "Logon Not Granted"},
                 {OFC_ERROR_TIMEOUT,                 "Connection Timeout"},
                 {OFC_ERROR_ACCOUNT_EXPIRED,         "Account Expired"},
