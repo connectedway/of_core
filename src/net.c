@@ -180,16 +180,13 @@ ofc_net_resolve_name(OFC_LPCSTR name, OFC_UINT16 *num_addrs,
       ofc_assert(waitq != OFC_HANDLE_NULL,
                  "Couldn't create waitq for netbios resolve\n");
       
-      /*
-       * First look for a domain controller
-       */
       *num_addrs = req_addrs;
-      NameServiceQueryName (waitq, OF_NAME_SERVICE_DOMAIN_CONTROLLER, name, 
+      NameServiceQueryName (waitq, OF_NAME_SERVICE_WORKSTATION, name, 
 			    num_addrs, ip) ;
       if (*num_addrs == 0)
         {
 	  *num_addrs = req_addrs;
-	  NameServiceQueryName (waitq, OF_NAME_SERVICE_WORKSTATION, name, 
+	  NameServiceQueryName (waitq, OF_NAME_SERVICE_DOMAIN_CONTROLLER, name, 
 				num_addrs, ip) ;
 	}
       if (*num_addrs == 0)

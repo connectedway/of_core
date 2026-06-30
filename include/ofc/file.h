@@ -2482,7 +2482,7 @@ OFC_CORE_LIB OFC_BOOL OfcSetCurrentDirectoryA(OFC_LPCSTR lpPathName);
  * 
  * This will return the default directory for relative file paths
  *
- * \param nBufferLength,
+ * \param nBufferLength
  * Size of buffer to return the current directory to
  * 
  * \param lpBuffer

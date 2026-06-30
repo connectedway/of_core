@@ -463,7 +463,8 @@ ofc_path_createW(OFC_LPCTSTR lpFileName)
 
           if (ofc_tstrcmp(dir, TSTR("..")) == 0)
             {
-              if (path->num_dirs > 0)
+              if ((path->remote && path->num_dirs > 2) ||
+                  (!path->remote && path->num_dirs > 0))
                 {
                   path->num_dirs--;
                   ofc_free(path->dir[path->num_dirs]);
@@ -714,7 +715,7 @@ ofc_path_printW(OFC_PATH *_path, OFC_LPTSTR *filename, OFC_SIZET *rem) {
     for (i = 0; i < path->num_dirs; i++) {
         if (path->dir[i] != OFC_NULL &&
             ofc_tstrcmp(path->dir[i], TSTR("")) != 0) {
-            if (i == 0 && path->remote )
+            if (i == 0 && path->remote)
               len += ofc_path_out_escaped(path->dir[i], filename, rem);
             else
               len += ofc_path_out_str(path->dir[i], filename, rem);
@@ -1202,7 +1203,7 @@ OFC_CORE_LIB OFC_SIZET ofc_path_make_urlW(OFC_LPTSTR *filename,
       }
 
     if (server != OFC_NULL) {
-        len += ofc_path_out_str(server, filename, rem);
+        len += ofc_path_out_escaped(server, filename, rem);
         len += ofc_path_out_char(delimeter, filename, rem);
     }
 
@@ -1740,6 +1741,23 @@ OFC_CORE_LIB OFC_VOID ofc_path_set_domain(OFC_PATH *_path,
             ofc_free(path->domain);
         path->domain = ofc_tstrdup(domain);
     }
+}
+
+OFC_CORE_LIB OFC_BOOL
+ofc_path_domain_cmp(OFC_PATH *_path, OFC_LPCTSTR domain) {
+    _OFC_PATH *path = (_OFC_PATH *) _path;
+    OFC_BOOL ret;
+
+    ret = OFC_FALSE;
+    if (path->remote) {
+        if (path->domain == OFC_NULL && domain == OFC_NULL)
+            ret = OFC_TRUE;
+        else if (path->domain != OFC_NULL && domain != OFC_NULL) {
+            if (ofc_tstrcmp(path->domain, domain) == 0)
+                ret = OFC_TRUE;
+        }
+    }
+    return (ret);
 }
 
 OFC_CORE_LIB OFC_LPCTSTR ofc_path_device(OFC_PATH *_path) {

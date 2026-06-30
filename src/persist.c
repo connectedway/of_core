@@ -242,7 +242,7 @@ ofc_persist_make_dom(OFC_VOID) {
             error_state = OFC_TRUE;
         }
 
-  if (!error_state) {
+        if (!error_state) {
             cstr =
                     ofc_tstr2cstr(ofc_persist->workstation_desc);
             node =
@@ -1797,6 +1797,19 @@ ofc_persist_uuid(OFC_UUID *uuid) {
         ofc_memset(uuid, '\0', OFC_UUID_LEN);
 }
 
+OFC_CORE_LIB OFC_CCHAR *
+ofc_persist_realm(OFC_VOID) {
+    OFC_CONFIG *ofc_persist;
+    OFC_CCHAR *realm;
+
+    ofc_persist = ofc_get_config();
+    if (ofc_persist != OFC_NULL) {
+      realm = ofc_persist->default_realm;
+    } else
+      realm = OFC_NULL;
+    return (realm);
+}
+
 OFC_CORE_LIB OFC_VOID
 ofc_persist_set_uuid(OFC_UUID *uuid) {
     OFC_CONFIG *ofc_persist;
@@ -1818,6 +1831,21 @@ ofc_persist_realm(OFC_VOID) {
     } else
       realm = OFC_NULL;
     return (realm);
+}
+
+OFC_CORE_LIB OFC_VOID
+ofc_persist_set_realm(OFC_CCHAR *realm) {
+    OFC_CONFIG *ofc_persist;
+
+    ofc_persist = ofc_get_config();
+    if (ofc_persist != OFC_NULL) {
+      if (ofc_persist->default_realm != OFC_NULL)
+        {
+          ofc_free(ofc_persist->default_realm);
+          ofc_persist->default_realm = OFC_NULL;
+        }
+      ofc_persist->default_realm = ofc_strdup(realm);
+    }
 }
 
 OFC_CORE_LIB OFC_VOID

@@ -81,6 +81,14 @@ ofc_read_line(OFC_CHAR *inbuf, OFC_SIZET len);
 OFC_CORE_LIB OFC_VOID
 ofc_read_password(OFC_CHAR *inbuf, OFC_SIZET len);
 
+OFC_CORE_LIB OFC_VOID
+ofc_console_set_log_file(OFC_CHAR *log_file,
+			 OFC_LARGE_INTEGER rollover_size,
+			 OFC_UINT max_instance);
+  
+OFC_CORE_LIB OFC_VOID ofc_console_init(OFC_VOID);
+OFC_CORE_LIB OFC_VOID ofc_console_destroy(OFC_VOID);
+
 #if defined(__cplusplus)
 }
 #endif

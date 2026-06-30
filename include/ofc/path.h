@@ -591,6 +591,11 @@ OFC_CORE_LIB OFC_LPCTSTR ofc_path_domain(OFC_PATH *path);
    */
 OFC_CORE_LIB OFC_VOID ofc_path_set_domain(OFC_PATH *_path,
                                           OFC_LPCTSTR domain);
+  /**
+   * \private
+   */
+OFC_CORE_LIB OFC_BOOL
+ofc_path_domain_cmp(OFC_PATH *_path, OFC_LPCTSTR domain);
 
   /**
    * \private
