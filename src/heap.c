@@ -19,6 +19,15 @@
 
 #undef BACKTRACE_SYM
 
+/*
+ * Soft ceiling on openfiles-tracked allocations.  When Total exceeds this,
+ * ofc_heap_malloc_acct calls ofc_heap_dump() and ofc_process_crash() so we
+ * catch a runaway leak well before system-wide OOM makes the process
+ * unkillable.  Set to 0 to disable.  Hardcoded for now — bump if the
+ * legitimate working set turns out to be bigger.
+ */
+#define OFC_HEAP_LIMIT_BYTES (128u * 1024u * 1024u)
+
 struct heap_chunk {
     OFC_SIZET alloc_size;
 #if defined(OFC_HEAP_DEBUG)
@@ -57,6 +66,9 @@ static OFC_HEAP_STATS ofc_heap_stats = {0};
 
 static OFC_VOID
 ofc_heap_malloc_acct(OFC_SIZET size, struct heap_chunk *chunk) {
+    static OFC_BOOL crashing = OFC_FALSE;
+    OFC_BOOL exceeded = OFC_FALSE;
+
     /*
      * Put on the allocation queue
      */
@@ -71,9 +83,30 @@ ofc_heap_malloc_acct(OFC_SIZET size, struct heap_chunk *chunk) {
     ofc_heap_stats.Total += size;
     if (ofc_heap_stats.Total >= ofc_heap_stats.Max)
         ofc_heap_stats.Max = ofc_heap_stats.Total;
+#if OFC_HEAP_LIMIT_BYTES > 0
+    /* One-shot: latch crashing under the lock so recursive allocs from the
+     * dump / crash path don't retrigger. */
+    if (!crashing && ofc_heap_stats.Total > OFC_HEAP_LIMIT_BYTES) {
+        crashing = OFC_TRUE;
+        exceeded = OFC_TRUE;
+    }
+#endif
 
     if (ofc_heap_stats.lock != OFC_NULL)
       ofc_unlock(ofc_heap_stats.lock);
+
+#if OFC_HEAP_LIMIT_BYTES > 0
+    if (exceeded) {
+        OFC_CHAR msg[128];
+        ofc_snprintf(msg, sizeof(msg),
+                     "openfiles heap limit exceeded: Total=%u, limit=%u\n",
+                     (OFC_UINT) ofc_heap_stats.Total,
+                     (OFC_UINT) OFC_HEAP_LIMIT_BYTES);
+        ofc_write_console(msg);
+        ofc_heap_dump();
+        ofc_process_crash(msg);
+    }
+#endif
 }
 
 static OFC_VOID
