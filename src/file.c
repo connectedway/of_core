@@ -372,8 +372,8 @@ OfcCloseHandle(OFC_HANDLE hObject) {
             OfcDestroyOverlapped(hObject, hOverlapped);
         }
         ofc_queue_destroy(fileContext->overlappedList);
-        ofc_handle_unlock(hObject);
         ofc_handle_destroy(hObject);
+        ofc_handle_unlock(hObject);
 #if defined(OFC_FILE_DEBUG)
         ofc_file_debug_free (fileContext) ;
 #endif
@@ -663,8 +663,8 @@ OfcFindClose(OFC_HANDLE hFindFile) {
     if (fileContext != OFC_NULL) {
         ret = OfcFSFindClose(fileContext->fsType,
                              fileContext->fsHandle);
-        ofc_handle_unlock(hFindFile);
         ofc_handle_destroy(hFindFile);
+        ofc_handle_unlock(hFindFile);
 #if defined(OFC_FILE_DEBUG)
         ofc_file_debug_free (fileContext) ;
 #endif
