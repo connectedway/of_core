@@ -104,23 +104,82 @@ static OFC_INT ofc_ipv6_get_scope(const OFC_IPADDR *ip) {
     return (scope);
 }
 
+/**
+ * Pick a source address for outgoing traffic to [dest].
+ *
+ * Primary path (kernel-delegated): open a scratch UDP socket, connect it
+ * to [dest], and read the source address the kernel picked via
+ * get_addresses. UDP connect() does not transmit a packet — it just
+ * triggers source-address selection against the current routing table
+ * and interface state. This is the standard pattern on hosts with a
+ * full IP stack (Linux, Windows, macOS, Android): the kernel picks the
+ * best interface for the destination and RFC 6724-selects a source on
+ * that interface. Because the kernel has real-time visibility into
+ * which interfaces are up and which routes exist, this correctly
+ * handles multi-homed hosts even when one interface goes down at
+ * runtime (which is what the earlier scope-only algorithm did NOT
+ * handle — reported by HP with a two-interface host getting
+ * ENETUNREACH after the primary interface went down even though the
+ * secondary retained a route to the target).
+ *
+ * Fallback path (scope-based): if the scratch UDP dance fails for any
+ * reason — the stack doesn't support connected UDP, doesn't perform
+ * source selection at connect() time, or the destination is
+ * genuinely unreachable — fall through to the legacy scope-based
+ * algorithm. This is a simplified variant of RFC 6724 that applies
+ * scope rules without consulting a routing table; it was OpenFiles'
+ * original algorithm and remains the correct pattern on embedded
+ * stacks that lack a general routing table.
+ */
 OFC_CORE_LIB OFC_VOID
 ofc_socket_source_address(const OFC_IPADDR *dest,
                           OFC_IPADDR *source) {
+    OFC_HANDLE scratch;
+    OFC_SOCKADDR local_sa;
+    OFC_SOCKADDR remote_sa;
+    OFC_BOOL kernel_picked;
     OFC_INT count;
     OFC_INT i;
     OFC_IPADDR ifip;
     OFC_IPADDR ifmask;
 
-    count = ofc_net_interface_count();
     /*
-     * Start with a default
+     * Initialize source to the family-appropriate any-address so a
+     * fallback that doesn't populate source leaves it in a safe state.
      */
     source->ip_version = dest->ip_version;
-    if (dest->ip_version == OFC_FAMILY_IP) {
+    if (dest->ip_version == OFC_FAMILY_IP)
         source->u.ipv4.addr = OFC_INADDR_ANY;
-        /* try to match by subnet */
+    else
+        source->u.ipv6 = ofc_in6addr_any;
 
+    /*
+     * Primary path: ask the stack via a scratch UDP socket. Arbitrary
+     * port; UDP connect doesn't need it to be reachable — we're only
+     * triggering source selection, not exchanging traffic.
+     */
+    kernel_picked = OFC_FALSE;
+    scratch = ofc_socket_impl_create(dest->ip_version, SOCKET_TYPE_DGRAM);
+    if (scratch != OFC_HANDLE_NULL) {
+        if (ofc_socket_impl_connect(scratch, dest, 53)) {
+            if (ofc_socket_impl_get_addresses(scratch,
+                                              &local_sa, &remote_sa)) {
+                *source = local_sa.sin_addr;
+                kernel_picked = OFC_TRUE;
+            }
+        }
+        ofc_socket_impl_destroy(scratch);
+    }
+    if (kernel_picked)
+        return;
+
+    /*
+     * Fallback: legacy scope-based algorithm. Kept intact from the
+     * pre-scratch-UDP implementation.
+     */
+    count = ofc_net_interface_count();
+    if (dest->ip_version == OFC_FAMILY_IP) {
+        /* try to match by subnet */
         for (i = 0; i < count && source->u.ipv4.addr == OFC_INADDR_ANY; i++) {
             ofc_net_interface_addr(i, &ifip, OFC_NULL, &ifmask);
             if (ifip.ip_version == OFC_FAMILY_IP) {
@@ -131,7 +190,6 @@ ofc_socket_source_address(const OFC_IPADDR *dest,
         }
     } else {
 #if defined(OFC_SOCKET_SCOPE_ALGORITHM)
-        source->u.ipv6 = ofc_in6addr_any ;
         for (i = 0 ; i < count ; i++)
       {
         ofc_net_interface_addr (i, &ifip, OFC_NULL, OFC_NULL) ;
@@ -161,7 +219,6 @@ ofc_socket_source_address(const OFC_IPADDR *dest,
         OFC_INT sscope;
 
         dscope = ofc_ipv6_get_scope(dest);
-        source->u.ipv6 = ofc_in6addr_any;
         sscope = ofc_ipv6_get_scope(source);
         for (i = 0; i < count; i++) {
             ofc_net_interface_addr(i, &ifip, OFC_NULL, OFC_NULL);
